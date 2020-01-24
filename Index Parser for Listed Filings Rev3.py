@@ -60,6 +60,25 @@ sorted_dict = collections.OrderedDict(sorted_x)
    .to_csv(CIK_Name_to_write, header=False))
 
 
+#      print(str(y)+"-QTR"+str(q))
+#      print("Lines in " + str(len(inputs)))
+#      print("Lines out " + str(len(output)))
 
+# Version 1 using an array
+#      output = [x for x in inputs if x[2] in req_forms]  # list
 
+# version 2 using a dictionary
+#with open(file_to_write) as csv_file:
+#    csv_reader = csv.reader(csv_file, delimiter=',')
+#    for row in csv_reader:
+#        key = row[0] + "-" + row[1]
+#        if key not in CIK_Name_Unique:
+#            CIK_Name_Unique.update({key : row})
+#            linesOut = linesOut + 1
+# (pd.DataFrame.from_dict(data=CIK_Name_Unique, orient='index')
+#   .to_csv(CIK_Name_to_write, header=False))
 
+# Another version
+#        output = {k : v for k, v in input.items() if v[1] in req_forms}
+#        with open(file_to_write, 'w') as data:
+#            data.write(str(output))
