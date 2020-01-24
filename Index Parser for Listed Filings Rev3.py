@@ -17,14 +17,13 @@ myFile = open(file_to_write, 'w')
 
 linesIn = 0
 linesOut= 0
-
+inputs = []
 print("reading files")
 for y in range(1993, 2020):
     print('adding '+ str(y))
     for q in range(1,5):
         open_file = str(y) + '-QTR' + str(q) + '.tsv'
         file_to_open = data_folder / open_file
-        inputs = []
         with open(file_to_open, 'r') as csv_file:
             for row in csv.reader(csv_file, delimiter='|'):
                 inputs.append(row)
@@ -33,7 +32,7 @@ req_forms = ['F-1','S-1','S-1/A','F-1/A','424A','424B1','424B2','424B3','424B4',
 print("filtering file")
 output = [x for x in inputs if x[2] in req_forms]
 print("writing file")
-myFile = open(file_to_write, 'a', newline='')
+myFile = open(file_to_write, 'w', newline='')
 with myFile:
     writer = csv.writer(myFile)
     writer.writerows(output)
