@@ -5,6 +5,7 @@ import operator
 import collections
 import pprint
 import time
+import os
 
 # updated to have input files be in a new input directory
 # added date and time one end of new files written
@@ -13,6 +14,7 @@ import time
 
 #need to change this code to just read in the big master list and then udate from teh last quarter availabe.  maybe the intersection of two sets would work.
 
+home_folder = os.getcwd() 
 data_folder = Path('C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/Python/Input/Edgar Index Files')
 data_folder_out = Path('C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/Python/Output/Edgar Out')
 
@@ -32,6 +34,11 @@ def write_records_no_header(input_file, records):
     with open(input_file, 'w', newline='') as myFile:
         writer = csv.writer(myFile)
         writer.writerows(records)
+
+def write_records_no_head_string(input_file, records):
+    with open(input_file, 'w', newline='') as myFile:
+        writer = csv.writer(myFile)
+        writer.writerows([records])
 
  # Load in all quarterly index files into a list named datarecords     
 
@@ -77,11 +84,12 @@ for row in filtered_Filings:
     CIK_Name_Unique.add((row[0],row[1]))
 
 # this doesn't work either - I want a unique list of CIK's
+# this works now - it was just printing incorrectly but was creating a list which I tested by printing out
 CIK_Unique = []
 for row in filtered_Filings:
     if row[0] not in CIK_Unique:
         CIK_Unique.append(row[0])
-print(CIK_Unique)
+# print(CIK_Unique)
 
 #CIK_Unique = set()
 #for row in filtered_Filings:
@@ -90,9 +98,10 @@ print(CIK_Unique)
 print("{}...{}".format("Writing Filtered_CIK_Name", time.process_time() - start))   
 write_records_no_header(file_to_write("Filtered_CIK_Name"), CIK_Name_Unique)
 
-# this does not work when I print to file
+# this does not work when I print to file - puts commas between the characters in the string
+# corrected it by new function with []
 print("{}...{}".format("Writing Filtered_CIK", time.process_time() - start))   
-write_records_no_header(file_to_write("CIK_Unique"), CIK_Unique)
+write_records_no_head_string(file_to_write("CIK_Unique"), CIK_Unique)
 
 # this now works.
 
