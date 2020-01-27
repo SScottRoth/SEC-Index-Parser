@@ -80,7 +80,8 @@ for row in filtered_Filings:
 CIK_Unique = []
 for row in filtered_Filings:
     if row[0] not in CIK_Unique:
-        CIK_Unique.append([row[0]])
+        CIK_Unique.append(row[0])
+print(CIK_Unique)
 
 #CIK_Unique = set()
 #for row in filtered_Filings:
@@ -89,10 +90,11 @@ for row in filtered_Filings:
 print("{}...{}".format("Writing Filtered_CIK_Name", time.process_time() - start))   
 write_records_no_header(file_to_write("Filtered_CIK_Name"), CIK_Name_Unique)
 
+# this does not work when I print to file
 print("{}...{}".format("Writing Filtered_CIK", time.process_time() - start))   
 write_records_no_header(file_to_write("CIK_Unique"), CIK_Unique)
 
-# I cant this part to work.
+# this now works.
 
 all_filtered_Filings = [row for row in datarecords if row[0] in CIK_Unique]
 write_records_no_header(file_to_write("All_Filtered_Qtr_Filer"), all_filtered_Filings)
