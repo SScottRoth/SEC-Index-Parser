@@ -11,6 +11,8 @@ import time
 # need to add flag to write_records to include header or not
 # for time being, just wrote new function
 
+#need to change this code to just read in the big master list and then udate from teh last quarter availabe.  maybe the intersection of two sets would work.
+
 data_folder = Path('C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/Python/Input/Edgar Index Files')
 data_folder_out = Path('C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/Python/Output/Edgar Out')
 
@@ -34,14 +36,18 @@ def write_records_no_header(input_file, records):
  # Load in all quarterly index files into a list named datarecords     
 
 datarecords = []
-#start = time.clock()
-for y in range(1993, 1995):
+start = time.clock()
+#add code in here so it does not break if you go out of range for the files
+for y in range(2020, 2021):
     for q in range(1,5):
         open_file = str(y) + '-QTR' + str(q) + '.tsv'
-        file_to_open = data_folder / open_file
-        with open(file_to_open, 'r') as csv_file:
-#            print("{}...{}".format(open_file, time.clock() - start))
-            datarecords.extend([_.strip().split('|') for _ in csv_file.readlines()])
+        try:
+            file_to_open = data_folder / open_file
+            with open(file_to_open, 'r') as csv_file:
+                print("{}...{}".format(open_file, time.clock() - start))
+                datarecords.extend([_.strip().split('|') for _ in csv_file.readlines()])
+        except:
+            continue
 
 write_records(file_to_write("All_SEC_Filings_Index"), datarecords)
 
