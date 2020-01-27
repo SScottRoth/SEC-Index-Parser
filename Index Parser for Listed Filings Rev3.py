@@ -36,21 +36,20 @@ def write_records_no_header(input_file, records):
  # Load in all quarterly index files into a list named datarecords     
 
 datarecords = []
-start = time.clock()
+start = time.process_time()
 #add code in here so it does not break if you go out of range for the files
-for y in range(2020, 2021):
+for y in range(1993, 2021):
     for q in range(1,5):
         open_file = str(y) + '-QTR' + str(q) + '.tsv'
         try:
             file_to_open = data_folder / open_file
             with open(file_to_open, 'r') as csv_file:
-                print("{}...{}".format(open_file, time.clock() - start))
+                print("{}...{}".format(open_file, time.process_time() - start))
                 datarecords.extend([_.strip().split('|') for _ in csv_file.readlines()])
         except:
             continue
-
+print("{}...{}".format("Writing All_SEC_Filings_Index", time.process_time() - start))
 write_records(file_to_write("All_SEC_Filings_Index"), datarecords)
-
        
 FORM_TYPE_FLD = 2   # 3rd element contains the form type
 
@@ -61,16 +60,21 @@ for row in datarecords:
     form_type_counts[row[FORM_TYPE_FLD]] += 1
     form_cik_counts[row[FORM_TYPE_FLD]].add(row[0])
 
+print("{}...{}".format("Writing Form_Type_CIK_Count", time.process_time() - start))
 with open(file_to_write("Form_Type_CIK_Count"), 'w') as f:
     for key in sorted(form_type_counts.keys()):
         f.write("{:20}  {:5d}  {:5d}\n".format(key, form_type_counts[key], len(form_cik_counts[key])))
 
 req_forms = ['10-K','10-Q','10-K/A','10-Q/A','10-QT', '10-KT','20-F','20-F/A', '6-F']
 filtered_Filings = [row for row in datarecords if row[FORM_TYPE_FLD] in req_forms]
+
+print("{}...{}".format("Writing Filtered_Qtr_Filers", time.process_time() - start))
 write_records(file_to_write("Filtered_Qtr_Filers"), filtered_Filings)
 
 
 CIK_Name_Unique = set()
 for row in filtered_Filings:
     CIK_Name_Unique.add((row[0],row[1]))
+
+print("{}...{}".format("Writing Filtered_CIK_Name", time.process_time() - start))   
 write_records_no_header(file_to_write("Filtered_CIK_Name"), CIK_Name_Unique)
