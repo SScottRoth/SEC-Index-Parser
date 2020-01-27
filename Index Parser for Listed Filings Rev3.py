@@ -14,6 +14,7 @@ import os
 
 #need to change this code to just read in the big master list and then udate from teh last quarter availabe.  maybe the intersection of two sets would work.
 
+# need to redo path with home_folers - was having problems implementing that
 home_folder = os.getcwd() 
 data_folder = Path('C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/Python/Input/Edgar Index Files')
 data_folder_out = Path('C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/Python/Output/Edgar Out')
@@ -45,19 +46,20 @@ def write_records_no_head_string(input_file, records):
 datarecords = []
 start = time.process_time()
 #add code in here so it does not break if you go out of range for the files
-for y in range(1993, 1994):
+for y in range(1993, 1996):
     for q in range(1,5):
         open_file = str(y) + '-QTR' + str(q) + '.tsv'
         try:
             file_to_open = data_folder / open_file
             with open(file_to_open, 'r') as csv_file:
-                print("{}...{}".format(open_file, time.process_time() - start))
+                # print("{}...{}".format(open_file, time.process_time() - start))
                 datarecords.extend([_.strip().split('|') for _ in csv_file.readlines()])
         except:
             continue
-print("{}...{}".format("Writing All_SEC_Filings_Index", time.process_time() - start))
+print("{}...{}".format("Finished building Data Records Array", time.process_time() - start))
 write_records(file_to_write("All_SEC_Filings_Index"), datarecords)
-       
+print("{}...{}".format("Finished Writing All_SEC_Filings_Index", time.process_time() - start))
+
 FORM_TYPE_FLD = 2   # 3rd element contains the form type
 
 # create dictionary where defult/new keys will be integers of 0
@@ -75,6 +77,9 @@ with open(file_to_write("Form_Type_CIK_Count"), 'w') as f:
 req_forms = ['10-K','10-Q','10-K/A','10-Q/A','10-QT', '10-KT','20-F','20-F/A', '6-F']
 filtered_Filings = [row for row in datarecords if row[FORM_TYPE_FLD] in req_forms]
 
+# THIS CODE DID NOT WORK  - PROGRAM IS NOW VERY VERY SLOW
+#filtered_Filings= filtered_Filings.sort()
+
 print("{}...{}".format("Writing Filtered_Qtr_Filers", time.process_time() - start))
 write_records(file_to_write("Filtered_Qtr_Filers"), filtered_Filings)
 
@@ -85,6 +90,7 @@ for row in filtered_Filings:
 
 # this doesn't work either - I want a unique list of CIK's
 # this works now - it was just printing incorrectly but was creating a list which I tested by printing out
+# THIS SEEMS VERY SLOW
 CIK_Unique = []
 for row in filtered_Filings:
     if row[0] not in CIK_Unique:
@@ -104,6 +110,7 @@ print("{}...{}".format("Writing Filtered_CIK", time.process_time() - start))
 write_records_no_head_string(file_to_write("CIK_Unique"), CIK_Unique)
 
 # this now works.
-
+print("{}...{}".format("Retrieving filings for quarterly filings", time.process_time() - start))   
 all_filtered_Filings = [row for row in datarecords if row[0] in CIK_Unique]
 write_records_no_header(file_to_write("All_Filtered_Qtr_Filer"), all_filtered_Filings)
+print("{}...{}".format("FINSIHED", time.process_time() - start))   
