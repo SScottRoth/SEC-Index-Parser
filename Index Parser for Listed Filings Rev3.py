@@ -38,7 +38,7 @@ def write_records_no_header(input_file, records):
 datarecords = []
 start = time.process_time()
 #add code in here so it does not break if you go out of range for the files
-for y in range(1993, 2021):
+for y in range(1993, 1994):
     for q in range(1,5):
         open_file = str(y) + '-QTR' + str(q) + '.tsv'
         try:
@@ -76,5 +76,23 @@ CIK_Name_Unique = set()
 for row in filtered_Filings:
     CIK_Name_Unique.add((row[0],row[1]))
 
+# this doesn't work either - I want a unique list of CIK's
+CIK_Unique = []
+for row in filtered_Filings:
+    if row[0] not in CIK_Unique:
+        CIK_Unique.append([row[0]])
+
+#CIK_Unique = set()
+#for row in filtered_Filings:
+#    CIK_Unique.add(row[0])
+
 print("{}...{}".format("Writing Filtered_CIK_Name", time.process_time() - start))   
 write_records_no_header(file_to_write("Filtered_CIK_Name"), CIK_Name_Unique)
+
+print("{}...{}".format("Writing Filtered_CIK", time.process_time() - start))   
+write_records_no_header(file_to_write("CIK_Unique"), CIK_Unique)
+
+# I cant this part to work.
+
+all_filtered_Filings = [row for row in datarecords if row[0] in CIK_Unique]
+write_records_no_header(file_to_write("All_Filtered_Qtr_Filer"), all_filtered_Filings)
