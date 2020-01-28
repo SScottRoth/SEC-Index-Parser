@@ -60,7 +60,7 @@ def write_column(input_file, records):
 datarecords = []
 start = time.process_time()
 #add code in here so it does not break if you go out of range for the files
-for y in range(1993, 2021):
+for y in range(2019, 2020):
     for q in range(1,5):
         try:
             open_file = str(y) + '-QTR' + str(q) + '.tsv'
@@ -92,9 +92,6 @@ with open(file_to_write("Form_Type_CIK_Count"), 'w') as f:
 # removed 6-F and added 40-F for Canadian Filers
 req_forms = ['10-K','10-Q','10-K/A','10-Q/A','10-QT', '10-KT','20-F','20-F/A', '40-F']
 filtered_Filings = [row for row in datarecords if row[FORM_TYPE_FLD] in req_forms]
-
-# THIS CODE DID NOT WORK  - PROGRAM IS NOW VERY VERY SLOW
-#filtered_Filings= filtered_Filings.sort()
 
 print("{}...{}".format("Writing Filtered_Qtr_Filers", time.process_time() - start))
 write_records(file_to_write("Filtered_Qtr_Filers"), filtered_Filings)
@@ -135,3 +132,16 @@ print("{}...{}".format("Retrieving filings for quarterly filings", time.process_
 all_filtered_Filings = [row for row in datarecords if row[0] in CIK_Unique]
 write_records_no_header(file_to_write("All_Filtered_Qtr_Filer"), all_filtered_Filings)
 print("{}...{}".format("FINSIHED", time.process_time() - start))   
+
+# create dictionary where defult/new keys will be integers of 0 - repeat this for filtered_Filings as in above
+form_type_filter_counts = collections.defaultdict(int)
+form_cik_filter_counts = collections.defaultdict(set)
+for row in all_filtered_Filings:
+    form_type_filter_counts[row[FORM_TYPE_FLD]] += 1
+    form_cik_filter_counts[row[FORM_TYPE_FLD]].add(row[0])
+
+print("{}...{}".format("Writing Form_Type_Filter_CIK_Count", time.process_time() - start))
+with open(file_to_write("Form_Type_Filter_CIK_Count"), 'w') as f:
+    for key in sorted(form_type_filter_counts.keys()):
+        f.write("{:20}  {:5d}  {:5d}\n".format(key, form_type_filter_counts[key], len(form_cik_filter_counts[key])))
+
