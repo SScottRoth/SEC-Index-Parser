@@ -89,7 +89,8 @@ with open(file_to_write("Form_Type_CIK_Count"), 'w') as f:
     for key in sorted(form_type_counts.keys()):
         f.write("{:20}  {:5d}  {:5d}\n".format(key, form_type_counts[key], len(form_cik_counts[key])))
 
-req_forms = ['10-K','10-Q','10-K/A','10-Q/A','10-QT', '10-KT','20-F','20-F/A', '6-F']
+# removed 6-F and added 40-F for Canadian Filers
+req_forms = ['10-K','10-Q','10-K/A','10-Q/A','10-QT', '10-KT','20-F','20-F/A', '40-F']
 filtered_Filings = [row for row in datarecords if row[FORM_TYPE_FLD] in req_forms]
 
 # THIS CODE DID NOT WORK  - PROGRAM IS NOW VERY VERY SLOW
