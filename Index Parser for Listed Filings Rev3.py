@@ -46,7 +46,7 @@ def write_records_no_head_string(input_file, records):
 datarecords = []
 start = time.process_time()
 #add code in here so it does not break if you go out of range for the files
-for y in range(1993, 1996):
+for y in range(1993, 2021):
     for q in range(1,5):
         open_file = str(y) + '-QTR' + str(q) + '.tsv'
         try:
