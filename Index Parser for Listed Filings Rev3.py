@@ -15,11 +15,15 @@ import os
 #need to change this code to just read in the big master list and then udate from teh last quarter availabe.  maybe the intersection of two sets would work.
 
 # DA - Dropbox paths aren't consistent across users and operating systems
+# SR - this doesn't work on a windows machine.  returns KeyError: 'C\\Users\sscot' on my machine.  I can't put that in as key either
 DROPBOX_PATHS = {
     '/Users/david': '/Users/david/Dropbox/',
-    '/Users/scot': 'C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/'
+    'C:/Users/sscot': 'C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/'
 }
-dropbox_base_folder = Path(DROPBOX_PATHS[str(Path.home())])
+#dropbox_base_folder = Path(DROPBOX_PATHS[str(Path.home())])
+#temp hack until I figure it out
+dropbox_base_folder = Path('C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/')
+
 data_folder = dropbox_base_folder / 'Python/Input/Edgar Index Files'
 data_folder_out = dropbox_base_folder / 'Python/Output/Edgar Out'
 
@@ -59,7 +63,7 @@ def write_column(input_file, records):
 datarecords = []
 start = time.process_time()
 #add code in here so it does not break if you go out of range for the files
-for y in range(1993, 1996):
+for y in range(1993, 2021):
     for q in range(1,5):
         open_file = str(y) + '-QTR' + str(q) + '.tsv'
         try:
