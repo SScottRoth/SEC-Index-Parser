@@ -12,18 +12,15 @@ import os
 # need to add flag to write_records to include header or not
 # for time being, just wrote new function
 
-#need to change this code to just read in the big master list and then udate from teh last quarter availabe.  maybe the intersection of two sets would work.
-
-# DA - Dropbox paths aren't consistent across users and operating systems
-# SR - this doesn't work on a windows machine.  returns KeyError: 'C\\Users\sscot' on my machine.  I can't put that in as key either
+#need to change this code to just read in the big master list and then udate from the last quarter availabe.  maybe the intersection of two sets would work.
+# added Saber's path and also added \\ vs / for the windows keys in the dictionary to work
 DROPBOX_PATHS = {
     '/Users/david': '/Users/david/Dropbox/',
-    'C:/Users/sscot': 'C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/'
+    'C:\\Users\\sscot': 'C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/',
+    'C:\\Users\\saber': 'C:/Users/saber/Dropbox (SRCMLLC)/SRCM/'
 }
-#dropbox_base_folder = Path(DROPBOX_PATHS[str(Path.home())])
-#temp hack until I figure it out
-dropbox_base_folder = Path('C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/')
 
+dropbox_base_folder = Path(DROPBOX_PATHS[str(Path.home())])
 data_folder = dropbox_base_folder / 'Python/Input/Edgar Index Files'
 data_folder_out = dropbox_base_folder / 'Python/Output/Edgar Out'
 
