@@ -90,7 +90,7 @@ with open(file_to_write("Form_Type_CIK_Count"), 'w') as f:
         f.write("{:20}  {:5d}  {:5d}\n".format(key, form_type_counts[key], len(form_cik_counts[key])))
 
 # removed 6-F and added 40-F for Canadian Filers
-req_forms = ['10-K','10-Q','10-K/A','10-Q/A','10-QT', '10-KT','20-F','20-F/A', '40-F']
+req_forms = ['10-K','10-Q','10-K/A','10-Q/A','10-QT', '10-KT','20-F','20-F/A', '40-F','40-F/A']
 filtered_Filings = [row for row in datarecords if row[FORM_TYPE_FLD] in req_forms]
 
 print("{}...{}".format("Writing Filtered_Qtr_Filers", time.process_time() - start))
@@ -145,3 +145,35 @@ with open(file_to_write("Form_Type_Filter_CIK_Count"), 'w') as f:
     for key in sorted(form_type_filter_counts.keys()):
         f.write("{:20}  {:5d}  {:5d}\n".format(key, form_type_filter_counts[key], len(form_cik_filter_counts[key])))
 
+# Compare Dave's list of companies vs ours
+
+exclusionCIK = set()
+open_file ="ExclusionList2019.csv"
+file_to_open = data_folder / open_file
+with open(file_to_open, 'r') as csv_file:
+    for row in csv_file:
+        exclusionCIK.add(row.strip())
+InclusionList = [row for row in all_filtered_Filings if row[0] not in exclusionCIK]
+ExclusionList = [row for row in all_filtered_Filings if row[0] in exclusionCIK]
+
+
+form_type_filter_A_counts = collections.defaultdict(int)
+form_cik_filter_A_counts = collections.defaultdict(set)
+for row in InclusionList:
+    form_type_filter_A_counts[row[FORM_TYPE_FLD]] += 1
+    form_cik_filter_A_counts[row[FORM_TYPE_FLD]].add(row[0])
+
+with open(file_to_write("InclusionCount"), 'w') as f:
+    for key in sorted(form_type_filter_A_counts.keys()):
+        f.write("{:20}  {:5d}  {:5d}\n".format(key, form_type_filter_A_counts[key], len(form_cik_filter_A_counts[key])))
+
+form_type_filter_B_counts = collections.defaultdict(int)
+form_cik_filter_B_counts = collections.defaultdict(set)
+for row in ExclusionList:
+    form_type_filter_B_counts[row[FORM_TYPE_FLD]] += 1
+    form_cik_filter_B_counts[row[FORM_TYPE_FLD]].add(row[0])
+
+
+with open(file_to_write("Exclusion_Count"), 'w') as f:
+    for key in sorted(form_type_filter_B_counts.keys()):
+        f.write("{:20}  {:5d}  {:5d}\n".format(key, form_type_filter_B_counts[key], len(form_cik_filter_B_counts[key])))
