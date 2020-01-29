@@ -1,6 +1,5 @@
 from pathlib import Path
 import csv
-import pandas as pd
 import operator
 import collections
 import pprint
@@ -14,6 +13,7 @@ import os
 
 #need to change this code to just read in the big master list and then udate from the last quarter availabe.  maybe the intersection of two sets would work.
 # added Saber's path and also added \\ vs / for the windows keys in the dictionary to work
+
 DROPBOX_PATHS = {
     '/Users/david': '/Users/david/Dropbox/',
     'C:\\Users\\sscot': 'C:/Users/sscot/Dropbox (SRCMLLC)/SRCM/',
@@ -24,9 +24,20 @@ dropbox_base_folder = Path(DROPBOX_PATHS[str(Path.home())])
 data_folder = dropbox_base_folder / 'Python/Input/Edgar Index Files'
 data_folder_out = dropbox_base_folder / 'Python/Output/Edgar Out'
 
+# added constants to define range of requested dates
+sDate,eDate = "1993Q1","2019Q4"
+
+sYear = int(sDate[0:4])
+eYear = int(eDate[0:4])
+sQtr = int(sDate[5:6])
+eQtr = int(eDate[5:6])
+
+# changing this to append file with start Q/Y and end Q/Y
+
 def file_to_write(file_name):
-    timestr = time.strftime("%Y-%m-%d-%H-%M")
-    full_file_name = file_name + " " + timestr + ".txt"
+#    timestr = time.strftime("%Y-%m-%d-%H-%M")
+    datestr = sDate + "-" + eDate
+    full_file_name = file_name + " " + datestr + ".txt"
     file_and_path = data_folder_out / full_file_name
     return(str(file_and_path))
 
@@ -57,11 +68,22 @@ def write_column(input_file, records):
 
  # Load in all quarterly index files into a list named datarecords     
 
+
+# changed loop logic to handle quarters not starting with 1 and ending with 4
+
 datarecords = []
 start = time.process_time()
-#add code in here so it does not break if you go out of range for the files
-for y in range(2019, 2020):
-    for q in range(1,5):
+
+for y in range(sYear, eYear+1):
+    if (y == sYear):
+        _sQtr = sQtr 
+    else: 
+        _sQtr = 1
+    if (y == eYear):
+        _eQtr = eQtr
+    else:
+        _eQtr = 4
+    for q in range(_sQtr,_eQtr+1):
         try:
             open_file = str(y) + '-QTR' + str(q) + '.tsv'
             file_to_open = data_folder / open_file
@@ -101,18 +123,6 @@ CIK_Name_Unique = set()
 for row in filtered_Filings:
     CIK_Name_Unique.add((row[0],row[1]))
 
-# this doesn't work either - I want a unique list of CIK's
-# this works now - it was just printing incorrectly but was creating a list which I tested by printing out
-# THIS SEEMS VERY SLOW
-# DA - don't waste time checking if row[0] is in CIK_Unique, just use a set like you had below. You thought it
-# DA - was wrong because your routine to save to a file had an error
-# CIK_Unique = []
-# for row in filtered_Filings:
-#     if row[0] not in CIK_Unique:
-#         CIK_Unique.append(row[0])
-# print(CIK_Unique)
-
-# DA - uncommented this - it's MUCH faster than above
 CIK_Unique = set()
 for row in filtered_Filings:
     CIK_Unique.add(row[0])
@@ -120,13 +130,11 @@ for row in filtered_Filings:
 print("{}...{}".format("Writing Filtered_CIK_Name", time.process_time() - start))   
 write_records_no_header(file_to_write("Filtered_CIK_Name"), CIK_Name_Unique)
 
-# this does not work when I print to file - puts commas between the characters in the string
-# corrected it by new function with []
-# DA - see changes to write_column above. Works now
+
 print("{}...{}".format("Writing Filtered_CIK", time.process_time() - start))   
 write_column(file_to_write("CIK_Unique"), CIK_Unique)
 
-# this now works.
+
 print("{}...{}".format("Retrieving filings for quarterly filings", time.process_time() - start))   
 # DA - this is where most of the script spends its time
 all_filtered_Filings = [row for row in datarecords if row[0] in CIK_Unique]
@@ -147,33 +155,33 @@ with open(file_to_write("Form_Type_Filter_CIK_Count"), 'w') as f:
 
 # Compare Dave's list of companies vs ours
 
-exclusionCIK = set()
-open_file ="ExclusionList2019.csv"
-file_to_open = data_folder / open_file
-with open(file_to_open, 'r') as csv_file:
-    for row in csv_file:
-        exclusionCIK.add(row.strip())
-InclusionList = [row for row in all_filtered_Filings if row[0] not in exclusionCIK]
-ExclusionList = [row for row in all_filtered_Filings if row[0] in exclusionCIK]
+# exclusionCIK = set()
+# open_file ="ExclusionList2019.csv"
+# file_to_open = data_folder / open_file
+# with open(file_to_open, 'r') as csv_file:
+#     for row in csv_file:
+#         exclusionCIK.add(row.strip())
+# InclusionList = [row for row in all_filtered_Filings if row[0] not in exclusionCIK]
+# ExclusionList = [row for row in all_filtered_Filings if row[0] in exclusionCIK]
 
 
-form_type_filter_A_counts = collections.defaultdict(int)
-form_cik_filter_A_counts = collections.defaultdict(set)
-for row in InclusionList:
-    form_type_filter_A_counts[row[FORM_TYPE_FLD]] += 1
-    form_cik_filter_A_counts[row[FORM_TYPE_FLD]].add(row[0])
+# form_type_filter_A_counts = collections.defaultdict(int)
+# form_cik_filter_A_counts = collections.defaultdict(set)
+# for row in InclusionList:
+#     form_type_filter_A_counts[row[FORM_TYPE_FLD]] += 1
+#     form_cik_filter_A_counts[row[FORM_TYPE_FLD]].add(row[0])
 
-with open(file_to_write("InclusionCount"), 'w') as f:
-    for key in sorted(form_type_filter_A_counts.keys()):
-        f.write("{:20}  {:5d}  {:5d}\n".format(key, form_type_filter_A_counts[key], len(form_cik_filter_A_counts[key])))
+# with open(file_to_write("InclusionCount"), 'w') as f:
+#     for key in sorted(form_type_filter_A_counts.keys()):
+#         f.write("{:20}  {:5d}  {:5d}\n".format(key, form_type_filter_A_counts[key], len(form_cik_filter_A_counts[key])))
 
-form_type_filter_B_counts = collections.defaultdict(int)
-form_cik_filter_B_counts = collections.defaultdict(set)
-for row in ExclusionList:
-    form_type_filter_B_counts[row[FORM_TYPE_FLD]] += 1
-    form_cik_filter_B_counts[row[FORM_TYPE_FLD]].add(row[0])
+# form_type_filter_B_counts = collections.defaultdict(int)
+# form_cik_filter_B_counts = collections.defaultdict(set)
+# for row in ExclusionList:
+#     form_type_filter_B_counts[row[FORM_TYPE_FLD]] += 1
+#     form_cik_filter_B_counts[row[FORM_TYPE_FLD]].add(row[0])
 
 
-with open(file_to_write("Exclusion_Count"), 'w') as f:
-    for key in sorted(form_type_filter_B_counts.keys()):
-        f.write("{:20}  {:5d}  {:5d}\n".format(key, form_type_filter_B_counts[key], len(form_cik_filter_B_counts[key])))
+# with open(file_to_write("Exclusion_Count"), 'w') as f:
+#     for key in sorted(form_type_filter_B_counts.keys()):
+#         f.write("{:20}  {:5d}  {:5d}\n".format(key, form_type_filter_B_counts[key], len(form_cik_filter_B_counts[key])))
