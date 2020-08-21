@@ -8,6 +8,7 @@ create table filing (
     form_text_url text,
     form_html_url text
 );
+create index filing_cik_index on filing(cik);
 
 .mode list
 .import "/Users/david/Dropbox/Python/Input/Edgar\ Index\ Files/1993-QTR1.tsv" filing
